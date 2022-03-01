@@ -4,7 +4,6 @@ import "components/Application.scss";
 import DayList from "./DayList";
 import Appointment from "components/Appointment";
 import { getAppointmentsForDay, getInterview, getInterviewersForDay } from "helpers/selectors";
-import useVisualMode from 'hooks/useVisualMode';
 
 
 // const appointments = {
@@ -58,6 +57,35 @@ export default function Application(props) {
 
   const dailyAppointments = getAppointmentsForDay(state, state.day);
   const dailyInterviewers = getInterviewersForDay(state, state.day);
+  
+  
+  function bookInterview(id, interview) {
+    const appointment = {
+      ...state.appointments[id],
+      interview: { ...interview }
+    };
+    
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+  
+  return axios
+  .put(`/api/appointments/${id}`, appointments[id])
+  .then((response) => {
+    if(response.status === 204)  { 
+    setState(prev => ({...prev,appointments}));
+  }})
+  .catch(() => console.error("got a error!"))
+}
+
+
+  function cancelInterview(id) {
+    return axios
+    .delete(`/api/appointments/${id}`)
+    .then(() => setState(prev => ({...prev, id: { id, interview:null} })))
+    .catch(() => console.error("got a error!"))
+  }
 
   useEffect(() => {
     Promise.all([
@@ -106,6 +134,8 @@ export default function Application(props) {
               time={appointment.time}
               interview={interview}
               interviewers={dailyInterviewers}
+              bookInterview={bookInterview}
+              cancelInterview={cancelInterview}
               />
             );
           })
@@ -114,5 +144,3 @@ export default function Application(props) {
     </main>
   );
 }
-
-
