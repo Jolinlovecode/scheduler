@@ -21,7 +21,6 @@ export function getInterview(state, interview) {
   if (interview === null) return null;
   for (let interviewId in state.interviewers) {
     if (state.interviewers[interviewId].id === interview.interviewer) {
-      // console.log("get a interview",interview);
       return {
         "student": interview.student,
         "interviewer": state.interviewers[interviewId]

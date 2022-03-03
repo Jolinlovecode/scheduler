@@ -11,6 +11,7 @@ export default function useApplicationData() {
 
   const setDay = day => setState({ ...state, day });
 
+  //use axios to get data from API server for setting application data, when first load
   useEffect(() => {
     Promise.all([
       axios.get("/api/days"),
@@ -19,8 +20,6 @@ export default function useApplicationData() {
     ]).then((all) => {
       const [days, appointments, interviewers] = all;
       setState(prev => ({...prev, days: days.data, appointments:appointments.data, interviewers:interviewers.data }));
-      //console.log(days); 
-      //console.log(all);
     });
   },[]);
   
@@ -34,7 +33,8 @@ export default function useApplicationData() {
       ...state.appointments,
       [id]: appointment
     };
-  
+
+  //put a new interview to API database, and set state
   return axios
   .put(`/api/appointments/${id}`, appointments[id])   
   .then((response) => {
@@ -44,10 +44,11 @@ export default function useApplicationData() {
   .catch(() => console.error("got a error!"))
 }
 
-
+  // cancel a interview
   function cancelInterview(id) {
     return axios
     .delete(`/api/appointments/${id}`)
+    //set interview into null
     .then(() => setState(prev => ({...prev, id: { id, interview:null} })))
     .catch(() => console.error("got a error!"))
   }

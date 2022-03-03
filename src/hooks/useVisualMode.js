@@ -6,14 +6,14 @@ export default function useVisualMode(initial) {
   
 
   function transition(newMode, replace = false) {
+
     setMode(newMode);
+
     if (replace === false) { 
-      // const newHistory = [...history, newMode];   //[1,2,3] => [1,2,3,4]
-      // setHistory(newHistory);
+    //[1,2,3] => [1,2,3,4]
       setHistory(prev => [...prev, newMode]);
     } else {
-      // const newHistory = [...history.slice(0,-1),newMode];    //[1,2,3] =>[1,2,4]
-      // setHistory(newHistory);
+    //[1,2,3] =>[1,2,4]
       setHistory(prev => [...prev.slice(0, -1), newMode]);
     }
   };
