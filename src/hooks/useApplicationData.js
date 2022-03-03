@@ -36,7 +36,7 @@ export default function useApplicationData() {
     };
   
   return axios
-  .put(`/api/appointments/${id}`, appointments[id])
+  .put(`/api/appointments/${id}`, appointments[id])   
   .then((response) => {
     if(response.status === 204)  { 
     setState(prev => ({...prev, appointments}));
