@@ -21,21 +21,27 @@ export default function Appointment(props) {
   const EDIT = "EDIT";
   const ERROR_SAVE = "ERROR_SAVE";
   const ERROR_DELETE = "ERROR_DELETE";
-  
+
+  //toggle mode between SHOW and EMPTY in accordance to interview available
   const { mode, transition, back } = useVisualMode(
     props.interview ? SHOW : EMPTY
   );
 
+  //save a interview, pass it to Appointment component
   function save(name, interviewer) {
     const interview = {
       student: name,
       interviewer
     };
 
+    //show saving status while updating in progress
     transition(SAVING);
 
+    // after save the new interview, transite to SHOW mode
+    // transition(SHOW) must wait until the bookInterview executed successfully, or transition(SHOW) will run before new state setted.
     props.bookInterview(props.id, interview)
     .then(()=> transition(SHOW) )
+    // switch to ERROR_SAVE mode, and replace the last mode which is SAVING, so if go back, we will be into CREATE mode
     .catch(() => transition(ERROR_SAVE, true))
   }
 
@@ -43,6 +49,7 @@ export default function Appointment(props) {
     transition(DELETING, true);
     props.cancelInterview(props.id)
     .then(() =>(transition(EMPTY)))
+    // switch to ERROR_DELETE mode, and replace the last mode which is DELETE.If go back, we can go back to CREATE(<Form />)
     .catch(() => (transition(ERROR_DELETE,true)))
   }
     
@@ -80,7 +87,6 @@ export default function Appointment(props) {
       }
       {mode === ERROR_DELETE && <Error message={"Error"} onClose={back}/>}
       {mode === ERROR_SAVE && <Error message={"Error"} onClose={back}/>}
-
     </article>
   )
 

@@ -14,7 +14,10 @@ export default function Application(props) {
     cancelInterview
   } = useApplicationData();
 
+  //interviewers displays in the Form component
   const interviewers = getInterviewersForDay(state, state.day);
+
+  ////appointments displayed in the Appointment component
   const appointments = getAppointmentsForDay(state, state.day).map(
     appointment => {
       return (
