@@ -22,7 +22,42 @@ export default function useApplicationData() {
       setState(prev => ({...prev, days: days.data, appointments:appointments.data, interviewers:interviewers.data }));
     });
   },[]);
-  
+
+  //calculate the number of day spots
+  const spotUpdate = (weekday, day, variable) => {
+    let spot = day.spots;
+    if (weekday === day.name && variable === "REMOVE_SPOT") {
+      return spot - 1;
+    } else if (weekday === day.name && variable === "ADD_SPOT") {
+      return spot + 1;
+    } else {
+      return spot;
+    }
+  };
+
+ //set update day state because of spots change
+  const updateSpots = (weekday, days, variable) => {
+    if (variable === "REMOVE_SPOT") {
+      const updatedStateDayArray = days.map(day => {
+        return {
+          ...day,
+          spots: spotUpdate(weekday, day, variable)
+        };
+      });
+      return updatedStateDayArray;
+    }
+    if (variable === "ADD_SPOT") {
+      const updatedStateDayArray = days.map(day => {
+        return {
+          ...day,
+          spots: spotUpdate(weekday, day, variable)
+        };
+      });
+      return updatedStateDayArray;
+    }
+  };
+
+  // update state when we book an interview 
   function bookInterview(id, interview) {
     const appointment = {
       ...state.appointments[id],
@@ -34,25 +69,44 @@ export default function useApplicationData() {
       [id]: appointment
     };
 
-  //put a new interview to API database, and set state
+  //put a new interview to API database, and set update state
   return axios
   .put(`/api/appointments/${id}`, appointments[id])   
-  .then((response) => {
-    if(response.status === 204)  { 
-    setState(prev => ({...prev, appointments}));
-  }})
+  .then(() => {
+    const spotUpdate = updateSpots(state.day, state.days, "REMOVE_SPOT");
+        setState({
+          ...state,
+          days: spotUpdate,
+          appointments
+        });
+  })
   .catch(() => console.error("got a error!"))
 }
 
-  // cancel a interview
+  // update state when we cancel an interview 
   function cancelInterview(id) {
+    const appointment = {
+      ...state.appointments[id],
+      interview: null
+    };
+    const appointments = {
+      ...state.appointments,
+      [id]: appointment
+    };
+
     return axios
     .delete(`/api/appointments/${id}`)
-    //set interview into null
-    .then(() => setState(prev => ({...prev, id: { id, interview:null} })))
+    //set interview into null, and set update state
+    .then(() => {
+      const spotUpdate = updateSpots(state.day, state.days, "REMOVE_SPOT");
+        setState({
+          ...state,
+          days: spotUpdate,
+          appointments
+        });
+    })
     .catch(() => console.error("got a error!"))
   }
 
   return { state, setDay, bookInterview, cancelInterview };
-
 }
