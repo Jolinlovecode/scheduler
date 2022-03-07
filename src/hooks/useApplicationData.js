@@ -23,40 +23,6 @@ export default function useApplicationData() {
     });
   },[]);
 
-  //calculate the number of day spots
-  const spotUpdate = (weekday, day, variable) => {
-    let spot = day.spots;
-    if (weekday === day.name && variable === "REMOVE_SPOT") {
-      return spot - 1;
-    } else if (weekday === day.name && variable === "ADD_SPOT") {
-      return spot + 1;
-    } else {
-      return spot;
-    }
-  };
-
- //set update day state because of spots change
-  const updateSpots = (weekday, days, variable) => {
-    if (variable === "REMOVE_SPOT") {
-      const updatedStateDayArray = days.map(day => {
-        return {
-          ...day,
-          spots: spotUpdate(weekday, day, variable)
-        };
-      });
-      return updatedStateDayArray;
-    }
-    if (variable === "ADD_SPOT") {
-      const updatedStateDayArray = days.map(day => {
-        return {
-          ...day,
-          spots: spotUpdate(weekday, day, variable)
-        };
-      });
-      return updatedStateDayArray;
-    }
-  };
-
   // update state when we book an interview 
   function bookInterview(id, interview) {
     const appointment = {
@@ -69,16 +35,24 @@ export default function useApplicationData() {
       [id]: appointment
     };
 
-  //put a new interview to API database, and set update state
+  //find the possible booked day by appoint id
+  const clickDay = state.days.find((day)=> day.appointments.includes(id));
+  //update day state according to interview.If it's null, the spots will be decreased by 1 when booking.Otherwise keep same.
+  const days = state.days.map((day) => {
+    if (day.name === clickDay.name && state.appointments[id].interview === null) {
+      return {...day, spots:day.spots - 1 }
+    }
+    else {
+      return day;
+    }
+  })
+  
   return axios
   .put(`/api/appointments/${id}`, appointments[id])   
   .then(() => {
-    const spotUpdate = updateSpots(state.day, state.days, "REMOVE_SPOT");
-        setState({
-          ...state,
-          days: spotUpdate,
-          appointments
-        });
+    //set update state
+    setState({...state, appointments, days})
+    console.log("days",days);
   })
   .catch(() => console.error("got a error!"))
 }
@@ -93,17 +67,24 @@ export default function useApplicationData() {
       ...state.appointments,
       [id]: appointment
     };
+    const clickDay = state.days.find(day => day.appointments.includes(id));
+    // console.log("click", clickDay);
+    // console.log("days",state.days);
+    //return the day 
+    const days = state.days.map((day) => {
+      if (day.name === clickDay.name ) {
+        return {...day, spots:day.spots + 1 }
+      }
+      else {
+        return day;
+      }
+    })
 
     return axios
     .delete(`/api/appointments/${id}`)
-    //set interview into null, and set update state
+    //set update state
     .then(() => {
-      const spotUpdate = updateSpots(state.day, state.days, "REMOVE_SPOT");
-        setState({
-          ...state,
-          days: spotUpdate,
-          appointments
-        });
+      setState({...state, appointments, days})
     })
     .catch(() => console.error("got a error!"))
   }
