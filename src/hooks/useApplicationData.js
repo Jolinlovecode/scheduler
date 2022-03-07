@@ -23,19 +23,20 @@ export default function useApplicationData() {
     });
   },[]);
 
-  // update state when we book an interview 
+  //book an interview 
   function bookInterview(id, interview) {
+    //define appointment 
     const appointment = {
       ...state.appointments[id],
       interview: { ...interview }
     };
-    
+    //define appointments
     const appointments = {
       ...state.appointments,
       [id]: appointment
     };
 
-  //find the possible booked day by appoint id
+  //find the booked day by appointment id
   const clickDay = state.days.find((day)=> day.appointments.includes(id));
   //update day state according to interview.If it's null, the spots will be decreased by 1 when booking.Otherwise keep same.
   const days = state.days.map((day) => {
@@ -46,31 +47,32 @@ export default function useApplicationData() {
       return day;
     }
   })
-  
+  //put the new interview to API databsae, and set state.
+  //make bookInterview a promise
   return axios
   .put(`/api/appointments/${id}`, appointments[id])   
   .then(() => {
-    //set update state
+    //set update state when we book an interview 
     setState({...state, appointments, days})
-    console.log("days",days);
   })
   .catch(() => console.error("got a error!"))
 }
 
-  // update state when we cancel an interview 
+  //delete an interview 
   function cancelInterview(id) {
+    //define appointment
     const appointment = {
       ...state.appointments[id],
       interview: null
     };
+    //define appointments
     const appointments = {
       ...state.appointments,
       [id]: appointment
     };
+    //find the day to delete the interview by appointment id
     const clickDay = state.days.find(day => day.appointments.includes(id));
-    // console.log("click", clickDay);
-    // console.log("days",state.days);
-    //return the day 
+    //update day state as its spots value changes when delete an interview
     const days = state.days.map((day) => {
       if (day.name === clickDay.name ) {
         return {...day, spots:day.spots + 1 }
@@ -79,10 +81,10 @@ export default function useApplicationData() {
         return day;
       }
     })
-
+  //delete an interview to API databsae
     return axios
     .delete(`/api/appointments/${id}`)
-    //set update state
+    //set update state when delete an interview
     .then(() => {
       setState({...state, appointments, days})
     })
