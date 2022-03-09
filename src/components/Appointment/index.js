@@ -43,7 +43,7 @@ export default function Appointment(props) {
     // switch to ERROR_SAVE mode, and replace the last mode which is SAVING, so if go back, we will be into CREATE mode
     .catch(() => transition(ERROR_SAVE, true))
   }
-
+    // after confirm to delete an interview, transite to Empty mode.
   function deleteInterview() {
     transition(DELETING, true);
     props.cancelInterview(props.id)
