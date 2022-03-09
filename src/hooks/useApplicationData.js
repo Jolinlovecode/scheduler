@@ -55,7 +55,6 @@ export default function useApplicationData() {
     //set update state when we book an interview 
     setState({...state, appointments, days})
   })
-  .catch(() => console.error("got a error!"))
 }
 
   //delete an interview 
@@ -88,7 +87,6 @@ export default function useApplicationData() {
     .then(() => {
       setState({...state, appointments, days})
     })
-    .catch(() => console.error("got a error!"))
   }
 
   return { state, setDay, bookInterview, cancelInterview };

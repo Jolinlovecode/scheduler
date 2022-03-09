@@ -1,6 +1,5 @@
 import React from "react";
 import "./styles.scss";
-// import classNames from "classnames";
 import Header from "./Header";
 import Show from "./Show";
 import Empty from "./Empty";
@@ -50,7 +49,7 @@ export default function Appointment(props) {
     props.cancelInterview(props.id)
     .then(() =>(transition(EMPTY)))
     // switch to ERROR_DELETE mode, and replace the last mode which is DELETE.If go back, we can go back to CREATE(<Form />)
-    .catch(() => (transition(ERROR_DELETE,true)))
+    .catch(() => transition(ERROR_DELETE,true))
   }
     
   return (
